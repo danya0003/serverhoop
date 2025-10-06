@@ -1,4 +1,4 @@
--- Auto Server Hopper - автоматический хоп каждые 4 секунды
+-- Auto Server Hopper - автоматический хоп каждые 3 секунды
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local TweenService = game:GetService("TweenService")
@@ -15,7 +15,7 @@ if not _G.AutoHopper then
         Enabled = true,
         HopCount = 0,
         LastHopTime = 0,
-        HopInterval = 4  -- Изменено на 4 секунды
+        HopInterval = 3  -- Изменено с 2 на 3 секунды
     }
 end
 
@@ -57,17 +57,16 @@ local function StartAutoHop()
     
     print("🚀 АВТО-ХОП АКТИВИРОВАН!")
     print("📊 Счетчик хопов: " .. Hopper.HopCount)
-    print("⏱️ Интервал: 4 секунды")  -- Обновлено сообщение
+    print("⏱️ Интервал: 3 секунды")  -- Обновлено сообщение
     
     -- Запускаем в отдельной корутине
     coroutine.wrap(function()
         while Hopper.Enabled and task.wait() do
             if not Hopper.Enabled then break end
             
-            -- Ожидание 4 секунды с индикацией (изменено на 4)
+            -- Ожидание 3 секунды с индикацией (изменено с 2 на 3)
             local waitTime = Hopper.HopInterval
             while waitTime > 0 and Hopper.Enabled do
-                CountdownLabel.Text = "Следующий хоп через: " .. waitTime .. "с"
                 waitTime = waitTime - 1
                 SafeWait(1)
             end
@@ -178,7 +177,7 @@ local function CreateStatusGUI()
         Title.Text = Hopper.Enabled and "🔥 АВТО-ХОП АКТИВЕН" or "⏸️ АВТО-ХОП ОСТАНОВЛЕН"
         Title.BackgroundColor3 = Hopper.Enabled and Color3.fromRGB(40, 150, 40) or Color3.fromRGB(150, 40, 40)
         
-        StatusLabel.Text = string.format("Хопов: %d\nИнтервал: 4 секунды", Hopper.HopCount)  -- Обновлено сообщение
+        StatusLabel.Text = string.format("Хопов: %d\nИнтервал: 3 секунды", Hopper.HopCount)  -- Обновлено сообщение
         StatusLabel.TextColor3 = Hopper.Enabled and Color3.fromRGB(200, 255, 200) or Color3.fromRGB(255, 200, 200)
         
         ToggleButton.Text = Hopper.Enabled and "⏸️ ОСТАНОВИТЬ" or "▶️ ПРОДОЛЖИТЬ"
@@ -208,8 +207,6 @@ local function CreateStatusGUI()
     -- Обновляем счетчик
     spawn(function()
         while ScreenGui.Parent and Hopper.Enabled do
-            CountdownLabel.Text = "Следующий хоп через: 4с"  -- Обновлено
-            SafeWait(1)
             CountdownLabel.Text = "Следующий хоп через: 3с"  -- Обновлено
             SafeWait(1)
             CountdownLabel.Text = "Следующий хоп через: 2с"  -- Обновлено
@@ -247,7 +244,7 @@ local function SetupChatCommands()
         elseif msg == ":status" then
             print("📊 АВТО-ХОП: " .. (Hopper.Enabled and "🔴 АКТИВЕН" or "⏸️ ОСТАНОВЛЕН"))
             print("🔢 Хопов: " .. Hopper.HopCount)
-            print("⏱️ Интервал: 4 секунды")  -- Обновлено сообщение
+            print("⏱️ Интервал: 3 секунды")  -- Обновлено сообщение
         elseif msg == ":gui" then
             CreateStatusGUI()
         elseif msg == ":hop" then
@@ -285,12 +282,12 @@ local function Initialize()
     end
     
     print("🔥 АВТО-ХОППЕР УСПЕШНО ЗАГРУЖЕН!")
-    print("⏱️ Интервал: 4 секунды")  -- Обновлено сообщение
+    print("⏱️ Интервал: 3 секунды")  -- Обновлено сообщение
     print("💬 Напишите :help для списка команд")
     
     -- Запускаем авто-хоп
     if Hopper.Enabled then
-        task.delay(4, StartAutoHop)  -- Обновлено на 4
+        task.delay(3, StartAutoHop)  -- Обновлено с 2 на 3
     end
 end
 
