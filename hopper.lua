@@ -1,49 +1,49 @@
--- Auto Server Hopper - автоматический хоп каждые 3 секунды
+-- Auto Server Hopper - automatic hop every 3 seconds
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local TweenService = game:GetService("TweenService")
 local LocalPlayer = Players.LocalPlayer
 
--- Проверка безопасности
+-- Safety check
 if not LocalPlayer then
     LocalPlayer = Players:GetPropertyChangedSignal("LocalPlayer"):Wait()
 end
 
--- Глобальные переменные для сохранения состояния
+-- Global variables for state preservation
 if not _G.AutoHopper then
     _G.AutoHopper = {
         Enabled = true,
         HopCount = 0,
         LastHopTime = 0,
-        HopInterval = 3  -- Изменено с 2 на 3 секунды
+        HopInterval = 3  -- Changed from 2 to 3 seconds
     }
 end
 
 local Hopper = _G.AutoHopper
 
--- Функция безопасного ожидания
+-- Safe wait function
 local function SafeWait(seconds)
     local start = tick()
     repeat task.wait() until tick() - start >= seconds
 end
 
--- Функция для принудительного перехода на другой сервер
+-- Function for forced server hop
 local function ForceHop()
     Hopper.HopCount = Hopper.HopCount + 1
     Hopper.LastHopTime = tick()
     
-    print("🔄 АВТО-ХОП #" .. Hopper.HopCount)
+    print("🔄 TUFF FINDER " .. Hopper.HopCount)
     
     local success, errorMsg = pcall(function()
         TeleportService:Teleport(game.PlaceId)
     end)
     
     if success then
-        print("🎯 Переход на следующий сервер...")
+        print("🎯 Moving to next server...")
         return true
     else
-        print("❌ Ошибка телепортации: " .. tostring(errorMsg))
-        -- Пробуем альтернативный метод
+        print("❌ Teleport error: " .. tostring(errorMsg))
+        -- Try alternative method
         local success2 = pcall(function()
             TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId)
         end)
@@ -51,20 +51,20 @@ local function ForceHop()
     end
 end
 
--- Основная функция авто-хоппинга
+-- Main auto-hop function
 local function StartAutoHop()
     if not Hopper.Enabled then return end
     
-    print("🚀 АВТО-ХОП АКТИВИРОВАН!")
-    print("📊 Счетчик хопов: " .. Hopper.HopCount)
-    print("⏱️ Интервал: 3 секунды")  -- Обновлено сообщение
+    print("FINDER ACTIVATED")
+    print("Finder status: " .. Hopper.HopCount)
+    print("Interval: 3 sec")  -- Updated message
     
-    -- Запускаем в отдельной корутине
+    -- Start in separate coroutine
     coroutine.wrap(function()
         while Hopper.Enabled and task.wait() do
             if not Hopper.Enabled then break end
             
-            -- Ожидание 3 секунды с индикацией (изменено с 2 на 3)
+            -- Wait 3 seconds with indication (changed from 2 to 3)
             local waitTime = Hopper.HopInterval
             while waitTime > 0 and Hopper.Enabled do
                 waitTime = waitTime - 1
@@ -74,7 +74,7 @@ local function StartAutoHop()
             if Hopper.Enabled then
                 local success = ForceHop()
                 if not success then
-                    print("⚠️ Повторная попытка через 5 секунд...")
+                    print("Retrying in 5 seconds...")
                     SafeWait(5)
                 end
             end
@@ -82,9 +82,9 @@ local function StartAutoHop()
     end)()
 end
 
--- Создаем GUI с кнопкой продолжения
+-- Create GUI with control buttons
 local function CreateStatusGUI()
-    -- Удаляем старый GUI если есть
+    -- Remove old GUI if exists
     if LocalPlayer:FindFirstChild("PlayerGui") then
         local oldGui = LocalPlayer.PlayerGui:FindFirstChild("AutoHopperGUI")
         if oldGui then
@@ -92,7 +92,7 @@ local function CreateStatusGUI()
         end
     end
 
-    -- Ждем создания PlayerGui
+    -- Wait for PlayerGui creation
     if not LocalPlayer:FindFirstChild("PlayerGui") then
         LocalPlayer:WaitForChild("PlayerGui")
     end
@@ -119,7 +119,7 @@ local function CreateStatusGUI()
     Frame.Active = true
     Frame.Draggable = true
     
-    -- Стиль для элементов
+    -- Style for elements
     local function CreateLabel(name, position, size, text)
         local label = Instance.new("TextLabel")
         label.Name = name
@@ -141,7 +141,7 @@ local function CreateStatusGUI()
     Title.BorderSizePixel = 0
     Title.Size = UDim2.new(1, 0, 0, 35)
     Title.Font = Enum.Font.GothamBold
-    Title.Text = Hopper.Enabled and "🔥 АВТО-ХОП АКТИВЕН" or "⏸️ АВТО-ХОП ОСТАНОВЛЕН"
+    Title.Text = Hopper.Enabled and "🔥 FINDER ACTIVE" or "⏸️ FINDER STOPPED"
     Title.TextColor3 = Color3.fromRGB(255, 255, 255)
     Title.TextSize = 16
     
@@ -167,139 +167,139 @@ local function CreateStatusGUI()
     end
     
     ToggleButton = CreateButton("ToggleButton", UDim2.new(0.05, 0, 0.75, 0), UDim2.new(0.6, 0, 0.2, 0), 
-        Hopper.Enabled and "⏸️ ОСТАНОВИТЬ" or "▶️ ПРОДОЛЖИТЬ",
+        Hopper.Enabled and "⏸️ STOP" or "▶️ START",
         Hopper.Enabled and Color3.fromRGB(180, 60, 60) or Color3.fromRGB(60, 180, 60))
     
     CloseButton = CreateButton("CloseButton", UDim2.new(0.7, 0, 0.75, 0), UDim2.new(0.25, 0, 0.2, 0), "❌", Color3.fromRGB(80, 80, 80))
     
-    -- Функция обновления GUI
+    -- GUI update function
     local function UpdateGUI()
-        Title.Text = Hopper.Enabled and "🔥 АВТО-ХОП АКТИВЕН" or "⏸️ АВТО-ХОП ОСТАНОВЛЕН"
+        Title.Text = Hopper.Enabled and "🔥 FINDER ACTIVE" or "⏸️ FINDER STOPPED"
         Title.BackgroundColor3 = Hopper.Enabled and Color3.fromRGB(40, 150, 40) or Color3.fromRGB(150, 40, 40)
         
-        StatusLabel.Text = string.format("Хопов: %d\nИнтервал: 3 секунды", Hopper.HopCount)  -- Обновлено сообщение
+        StatusLabel.Text = string.format("Hops: %d\nInterval: 3 seconds", Hopper.HopCount)  -- Updated message
         StatusLabel.TextColor3 = Hopper.Enabled and Color3.fromRGB(200, 255, 200) or Color3.fromRGB(255, 200, 200)
         
-        ToggleButton.Text = Hopper.Enabled and "⏸️ ОСТАНОВИТЬ" or "▶️ ПРОДОЛЖИТЬ"
+        ToggleButton.Text = Hopper.Enabled and "⏸️ STOP" or "▶️ START"
         ToggleButton.BackgroundColor3 = Hopper.Enabled and Color3.fromRGB(180, 60, 60) or Color3.fromRGB(60, 180, 60)
     end
     
-    -- Обработчик кнопки переключения
+    -- Toggle button handler
     ToggleButton.MouseButton1Click:Connect(function()
         Hopper.Enabled = not Hopper.Enabled
         
         if Hopper.Enabled then
-            print("▶️ АВТО-ХОП ПРОДОЛЖЕН!")
+            print("▶️ FINDER STARTED!")
             StartAutoHop()
         else
-            print("⏸️ АВТО-ХОП ОСТАНОВЛЕН")
+            print("⏸️ FINDER STOPPED")
         end
         
         UpdateGUI()
     end)
     
-    -- Обработчик закрытия GUI
+    -- Close GUI handler
     CloseButton.MouseButton1Click:Connect(function()
         ScreenGui:Destroy()
-        print("📱 GUI закрыт")
+        print("📱 GUI closed")
     end)
     
-    -- Обновляем счетчик
+    -- Update countdown
     spawn(function()
         while ScreenGui.Parent and Hopper.Enabled do
-            CountdownLabel.Text = "Следующий хоп через: 3с"  -- Обновлено
+            CountdownLabel.Text = "Next hop in: 3s"  -- Updated
             SafeWait(1)
-            CountdownLabel.Text = "Следующий хоп через: 2с"  -- Обновлено
+            CountdownLabel.Text = "Next hop in: 2s"  -- Updated
             SafeWait(1)
-            CountdownLabel.Text = "Следующий хоп через: 1с"
+            CountdownLabel.Text = "Next hop in: 1s"
             SafeWait(1)
         end
-        CountdownLabel.Text = "ОСТАНОВЛЕНО"
+        CountdownLabel.Text = "STOPPED"
     end)
     
     UpdateGUI()
     return ScreenGui
 end
 
--- Команды в чат для управления
+-- Chat commands for control
 local function SetupChatCommands()
     LocalPlayer.Chatted:Connect(function(message)
         local msg = string.lower(message)
         
         if msg == ":stop" then
             Hopper.Enabled = false
-            print("⏸️ АВТО-ХОП ОСТАНОВЛЕН")
+            print("⏸️ AUTO-HOP STOPPED")
         elseif msg == ":start" then
             Hopper.Enabled = true
-            print("▶️ АВТО-ХОП ПРОДОЛЖЕН!")
+            print("▶️ AUTO-HOP RESUMED!")
             StartAutoHop()
         elseif msg == ":toggle" then
             Hopper.Enabled = not Hopper.Enabled
             if Hopper.Enabled then
-                print("▶️ АВТО-ХОП ПРОДОЛЖЕН!")
+                print("▶️ AUTO-HOP RESUMED!")
                 StartAutoHop()
             else
-                print("⏸️ АВТО-ХОП ОСТАНОВЛЕН")
+                print("⏸️ AUTO-HOP STOPPED")
             end
         elseif msg == ":status" then
-            print("📊 АВТО-ХОП: " .. (Hopper.Enabled and "🔴 АКТИВЕН" or "⏸️ ОСТАНОВЛЕН"))
-            print("🔢 Хопов: " .. Hopper.HopCount)
-            print("⏱️ Интервал: 3 секунды")  -- Обновлено сообщение
+            print("📊 AUTO-HOP: " .. (Hopper.Enabled and "🔴 ACTIVE" or "⏸️ STOPPED"))
+            print("🔢 Hops: " .. Hopper.HopCount)
+            print("⏱️ Interval: 3 seconds")  -- Updated message
         elseif msg == ":gui" then
             CreateStatusGUI()
         elseif msg == ":hop" then
-            print("⚡ Принудительный хоп...")
+            print("⚡ Forced hop...")
             ForceHop()
         elseif msg == ":help" then
-            print("💬 КОМАНДЫ АВТО-ХОП:")
-            print(":start - запустить")
-            print(":stop - остановить") 
-            print(":toggle - переключить")
-            print(":status - статус")
-            print(":gui - показать GUI")
-            print(":hop - принудительный хоп")
+            print("💬 AUTO-HOP COMMANDS:")
+            print(":start - start hopper")
+            print(":stop - stop hopper") 
+            print(":toggle - toggle state")
+            print(":status - show status")
+            print(":gui - show GUI")
+            print(":hop - force hop")
         end
     end)
 end
 
--- Основная инициализация
+-- Main initialization
 local function Initialize()
-    print("🎯 ИНИЦИАЛИЗАЦИЯ АВТО-ХОППЕРА...")
+    print("🎯 INITIALIZING AUTO-HOPPER...")
     
-    -- Ждем полной загрузки игрока
+    -- Wait for player to fully load
     while not LocalPlayer do
         task.wait(0.1)
         LocalPlayer = Players.LocalPlayer
     end
     
-    -- Настраиваем команды чата
+    -- Setup chat commands
     SetupChatCommands()
     
-    -- Создаем GUI
+    -- Create GUI
     local success, err = pcall(CreateStatusGUI)
     if not success then
-        print("⚠️ Ошибка создания GUI: " .. tostring(err))
+        print("⚠️ GUI creation error: " .. tostring(err))
     end
     
-    print("🔥 АВТО-ХОППЕР УСПЕШНО ЗАГРУЖЕН!")
-    print("⏱️ Интервал: 3 секунды")  -- Обновлено сообщение
-    print("💬 Напишите :help для списка команд")
+    print("🔥 AUTO-HOPPER SUCCESSFULLY LOADED!")
+    print("⏱️ Interval: 3 seconds")  -- Updated message
+    print("💬 Type :help for command list")
     
-    -- Запускаем авто-хоп
+    -- Start auto-hop
     if Hopper.Enabled then
-        task.delay(3, StartAutoHop)  -- Обновлено с 2 на 3
+        task.delay(3, StartAutoHop)  -- Updated from 2 to 3
     end
 end
 
--- Запускаем инициализацию с защитой
+-- Run initialization with protection
 local success, errorMsg = pcall(Initialize)
 if not success then
-    warn("❌ Ошибка инициализации: " .. tostring(errorMsg))
-    -- Альтернативный запуск
+    warn("❌ Initialization error: " .. tostring(errorMsg))
+    -- Alternative startup
     task.spawn(Initialize)
 end
 
--- Защита от ошибок
+-- Error protection
 game:GetService("ScriptContext").Error:Connect(function(message)
-    -- Игнорируем не критичные ошибки
+    -- Ignore non-critical errors
 end)
